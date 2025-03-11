@@ -1,0 +1,8 @@
+services:
+  auth:
+    image: ${DOCKER_USERNAME}/socketing:auth-service
+    container_name: auth-service-app
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./logs:/app/logs
