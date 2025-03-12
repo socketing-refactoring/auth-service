@@ -9,3 +9,10 @@ spring:
     config:
       name: auth-service
       profile: dev
+
+token:
+  jwt:
+    private: |
+      {jwt-private-key}
+    public: |
+      {jwt-public-key}

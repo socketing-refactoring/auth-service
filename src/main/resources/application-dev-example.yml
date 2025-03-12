@@ -31,9 +31,3 @@ springdoc:
   api-docs:
     path: /auth-service/v3/api-docs
 
-token:
-  jwt:
-    private: |
-      {jwt-private-key}
-    public: |
-      {jwt-public-key}
