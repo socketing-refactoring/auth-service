@@ -7,16 +7,19 @@ import com.jeein.auth.dto.response.JoinResponseDTO;
 import com.jeein.auth.dto.response.LoginResponseDTO;
 import com.jeein.auth.dto.response.MemberLoginResponseDTO;
 import com.jeein.auth.dto.response.ValidateTokenResponseDTO;
+import com.jeein.auth.exception.AuthException;
 import com.jeein.auth.exception.CustomJwtException;
 import com.jeein.auth.exception.ErrorCode;
 import com.jeein.auth.feign.MemberServiceFeignClient;
 import com.jeein.auth.util.JwtManager;
+import feign.FeignException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.validation.Valid;
 import java.security.PublicKey;
+import java.time.Duration;
 import java.util.Date;
-
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
@@ -32,8 +35,10 @@ public class AuthService {
     private final MemberServiceFeignClient memberServiceFeignClient;
 
     // 회원 가입
-    public CommonResponseDTO<JoinResponseDTO> registerMember(@RequestBody @Valid JoinRequestDTO joinRequestDTO) {
-        CommonResponseDTO<JoinResponseDTO> response = memberServiceFeignClient.createMember(joinRequestDTO);
+    public CommonResponseDTO<JoinResponseDTO> registerMember(
+            @RequestBody @Valid JoinRequestDTO joinRequestDTO) {
+        CommonResponseDTO<JoinResponseDTO> response =
+                memberServiceFeignClient.createMember(joinRequestDTO);
 
         if (!response.getCode().equals("0")) {
             return response;
@@ -45,35 +50,47 @@ public class AuthService {
     }
 
     // 로그인
-    public CommonResponseDTO<LoginResponseDTO> loginMember(@RequestBody @Valid LoginRequestDTO loginRequestDTO) {
+    public CommonResponseDTO<LoginResponseDTO> loginMember(
+            @RequestBody @Valid LoginRequestDTO loginRequestDTO) {
 
-        CommonResponseDTO<MemberLoginResponseDTO> memberLoginResponse = memberServiceFeignClient.loginMember(loginRequestDTO);
-        if (!memberLoginResponse.getCode().equals("0")) {
-
-            return CommonResponseDTO.<LoginResponseDTO>builder()
-                .code(memberLoginResponse.getCode())
-                .message(memberLoginResponse.getMessage())
-                .data(null) // 실패 응답일 경우 data는 null
-                .build();
-        } else if (memberLoginResponse == null || memberLoginResponse.getData() == null) {
-            throw new CustomJwtException(ErrorCode.AUTH_FAILED);
+        CommonResponseDTO<MemberLoginResponseDTO> memberLoginResponse;
+        try {
+            memberLoginResponse =
+                    memberServiceFeignClient.loginMember(loginRequestDTO);
+        } catch (FeignException e) {
+//            if (!memberLoginResponse.getCode().equals("0")
+//                    || Optional.ofNullable(memberLoginResponse.getData()).isEmpty())
+                throw new AuthException(ErrorCode.AUTH_FAILED);
         }
 
-        String token = jwtManager.generateToken(memberLoginResponse.getData().getId(), memberLoginResponse.getData().getEmail());
-        ResponseCookie jwtCookie = ResponseCookie.from("auth-token", token)
-            .httpOnly(true)
-            .secure(true)
-            .path("/")        // 모든 경로에서 사용 가능
-            .maxAge(6 * 60 * 60)
-            .sameSite("Strict")
-            .build();
+        long expireTime = Duration.ofHours(6).toMillis();
+        long expiresIn = System.currentTimeMillis() + expireTime;
+        String token =
+                jwtManager.generateToken(
+                        memberLoginResponse.getData().getId(),
+                        memberLoginResponse.getData().getEmail(),
+                        new Date(expiresIn));
 
-        LoginResponseDTO loginResponseDTO = LoginResponseDTO.builder()
-            .id(memberLoginResponse.getData().getId())
-            .nickname(memberLoginResponse.getData().getNickname())
-            .email(memberLoginResponse.getData().getEmail())
-            .token(token)
-            .build();
+        ResponseCookie jwtCookie =
+                ResponseCookie.from("auth-token", token)
+                        .httpOnly(true)
+                        .secure(true)
+                        .path("/") // 모든 경로에서 사용 가능
+                        .maxAge(6 * 60 * 60)
+                        .sameSite("Strict")
+                        .build();
+
+        LoginResponseDTO loginResponseDTO =
+                LoginResponseDTO.builder()
+                        //                        .id(memberLoginResponse.getData().getId())
+                        //
+                        // .nickname(memberLoginResponse.getData().getNickname())
+                        //
+                        // .email(memberLoginResponse.getData().getEmail())
+                        .accessToken(token)
+                        .expiresIn(expiresIn)
+                        .tokenType("Bearer")
+                        .build();
         return CommonResponseDTO.success("로그인이 성공적으로 이루어졌습니다.", "0", loginResponseDTO);
     }
 
@@ -83,11 +100,12 @@ public class AuthService {
 
         Claims claims = null;
         try {
-            claims = Jwts.parser()
-                .verifyWith(publicKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+            claims =
+                    Jwts.parser()
+                            .verifyWith(publicKey)
+                            .build()
+                            .parseSignedClaims(token)
+                            .getPayload();
 
         } catch (Exception e) {
             log.debug("JWT 인증실패");
@@ -101,7 +119,8 @@ public class AuthService {
             throw new CustomJwtException(ErrorCode.EXPIRED_TOKEN);
         }
 
-        CommonResponseDTO<ValidateTokenResponseDTO> response = memberServiceFeignClient.validateMemberById(claims.getSubject());
+        CommonResponseDTO<ValidateTokenResponseDTO> response =
+                memberServiceFeignClient.validateMemberById(claims.getSubject());
 
         if (!response.getCode().equals("0")) {
             return response;

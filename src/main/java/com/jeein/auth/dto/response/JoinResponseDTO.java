@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class JoinResponseDTO {
-  private String id;
-  private String nickname;
-  private String email;
+    private String id;
+    private String nickname;
+    private String email;
 }

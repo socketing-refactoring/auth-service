@@ -2,6 +2,8 @@ package com.jeein.auth.exception;
 
 import com.jeein.auth.dto.common.CommonResponseDTO;
 import java.util.ArrayList;
+
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,21 +18,48 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<CommonResponseDTO<Object>> handleMethodArgumentNotValidException(
-        MethodArgumentNotValidException e) {
-        CommonResponseDTO<Object> response = CommonResponseDTO.error(ErrorCode.INVALID_REQUEST_VALUE, e.getBindingResult());
+            MethodArgumentNotValidException e) {
+        CommonResponseDTO<Object> response =
+                CommonResponseDTO.error(ErrorCode.INVALID_REQUEST_VALUE, e.getBindingResult());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<CommonResponseDTO<Object>> handleMethodArgumentTypeMismatchException(
-        MethodArgumentTypeMismatchException e) {
+            MethodArgumentTypeMismatchException e) {
         CommonResponseDTO<Object> response = CommonResponseDTO.error(e);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(CustomJwtException.class)
-    protected ResponseEntity<CommonResponseDTO<Object>> handleCustomJwtException(CustomJwtException e) {
-        CommonResponseDTO<Object> response = CommonResponseDTO.error(e.getErrorCode(), new ArrayList<>());
+    protected ResponseEntity<CommonResponseDTO<Object>> handleCustomJwtException(
+            CustomJwtException e) {
+        CommonResponseDTO<Object> response =
+                CommonResponseDTO.error(e.getErrorCode(), new ArrayList<>());
         return new ResponseEntity<>(response, e.getErrorCode().getStatus());
+    }
+
+    @ExceptionHandler(FeignException.class)
+    protected ResponseEntity<CommonResponseDTO<Object>> handleFeignException(
+            FeignException e) {
+        CommonResponseDTO<Object> response =
+                CommonResponseDTO.error(ErrorCode.FEIGN_CLIENT_ERROR, new ArrayList<>());
+        return new ResponseEntity<>(response, ErrorCode.FEIGN_CLIENT_ERROR.getStatus());
+    }
+
+    @ExceptionHandler(AuthException.class)
+    protected ResponseEntity<CommonResponseDTO<Object>> handleAuthException(
+            AuthException e) {
+        CommonResponseDTO<Object> response =
+                CommonResponseDTO.error(ErrorCode.FEIGN_CLIENT_ERROR, new ArrayList<>());
+        return new ResponseEntity<>(response, ErrorCode.FEIGN_CLIENT_ERROR.getStatus());
+    }
+
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<CommonResponseDTO<Object>> handleException(
+            Exception e) {
+        CommonResponseDTO<Object> response =
+                CommonResponseDTO.error(ErrorCode.INTERNAL_SERVER_ERROR, new ArrayList<>());
+        return new ResponseEntity<>(response, ErrorCode.INTERNAL_SERVER_ERROR.getStatus());
     }
 }

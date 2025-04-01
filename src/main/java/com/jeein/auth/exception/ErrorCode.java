@@ -1,7 +1,6 @@
 package com.jeein.auth.exception;
 
 import lombok.Getter;
-import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http;
 import org.springframework.http.HttpStatus;
 
 @Getter
@@ -17,7 +16,8 @@ public enum ErrorCode {
     REQUEST_MAPPING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S_002", "요청 데이터 처리에 오류가 발생했습니다"),
     TOKEN_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S_003", "로그인 과정에서 오류가 발생했습니다."),
     AUTH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S_004", "인증 과정에서 오류가 발생했습니다."),
-    
+    FEIGN_CLIENT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S_005", "마이크로 서비스 통신 중 오류가 발생했습니다."),
+
     PASSWORD_FAILED(HttpStatus.FORBIDDEN, "A_001", "비밀번호를 다시 확인해 주세요."),
     INVALID_TOKEN(HttpStatus.FORBIDDEN, "A_002", "접근이 허용되지 않은 사용자입니다"),
     EXPIRED_TOKEN(HttpStatus.FORBIDDEN, "A_003", "만료된 토큰입니다."),

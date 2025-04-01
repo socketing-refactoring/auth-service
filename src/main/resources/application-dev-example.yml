@@ -30,4 +30,3 @@ springdoc:
   #    url: /openapi.yml
   api-docs:
     path: /auth-service/v3/api-docs
-

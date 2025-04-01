@@ -10,15 +10,16 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "member-service-dev")
+@FeignClient(name = "member-service")
 public interface MemberServiceFeignClient {
 
-  @PostMapping("/api/v1/member-service/join")
-  CommonResponseDTO<JoinResponseDTO> createMember(@RequestBody JoinRequestDTO joinRequestDTO);
+    @PostMapping("/api/v1/members/join")
+    CommonResponseDTO<JoinResponseDTO> createMember(@RequestBody JoinRequestDTO joinRequestDTO);
 
-  @PostMapping("/api/v1/member-service/login")
-  CommonResponseDTO<MemberLoginResponseDTO> loginMember(@RequestBody LoginRequestDTO loginRequestDTO);
+    @PostMapping("/api/v1/members/login")
+    CommonResponseDTO<MemberLoginResponseDTO> loginMember(
+            @RequestBody LoginRequestDTO loginRequestDTO);
 
-  @PostMapping("/api/v1/member-service/validate")
-  CommonResponseDTO<ValidateTokenResponseDTO> validateMemberById(@RequestBody String id);
+    @PostMapping("/api/v1/members/validate")
+    CommonResponseDTO<ValidateTokenResponseDTO> validateMemberById(@RequestBody String id);
 }

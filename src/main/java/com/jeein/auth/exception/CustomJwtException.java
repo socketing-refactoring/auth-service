@@ -1,6 +1,5 @@
 package com.jeein.auth.exception;
 
-import com.jeein.auth.exception.ErrorCode;
 import lombok.Getter;
 
 @Getter
