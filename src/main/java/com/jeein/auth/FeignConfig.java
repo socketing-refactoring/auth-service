@@ -1,5 +1,6 @@
 package com.jeein.auth;
 
+import feign.Logger;
 import feign.codec.ErrorDecoder;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +10,18 @@ import org.springframework.context.annotation.Configuration;
 @EnableFeignClients
 public class FeignConfig {
 
+//    @Bean
+//    public ErrorDecoder errorDecoder() {
+//        return new CustomErrorDecoder();
+//    }
+
     @Bean
-    public ErrorDecoder errorDecoder() {
-        return new CustomErrorDecoder();
+    Logger feignLogger() {
+        return new CustomFeignLogger();
+    }
+
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
     }
 }

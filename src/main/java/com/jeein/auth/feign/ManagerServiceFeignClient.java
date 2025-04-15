@@ -1,6 +1,5 @@
 package com.jeein.auth.feign;
 
-import com.jeein.auth.FeignConfig;
 import com.jeein.auth.dto.common.CommonResponseDTO;
 import com.jeein.auth.dto.request.JoinRequestDTO;
 import com.jeein.auth.dto.request.LoginRequestDTO;
@@ -13,15 +12,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "member-service")
-public interface MemberServiceFeignClient {
+public interface ManagerServiceFeignClient {
 
-    @PostMapping("/api/v1/members/join")
-    ResponseEntity<CommonResponseDTO<JoinResponseDTO>> createMember(@RequestBody JoinRequestDTO joinRequestDTO);
+    @PostMapping("/api/v1/managers/join")
+    ResponseEntity<CommonResponseDTO<JoinResponseDTO>> joinManager(@RequestBody JoinRequestDTO joinRequestDTO);
 
-    @PostMapping("/api/v1/members/login")
-    ResponseEntity<CommonResponseDTO<MemberLoginResponseDTO>> loginMember(
+    @PostMapping("/api/v1/managers/login")
+    ResponseEntity<CommonResponseDTO<MemberLoginResponseDTO>> loginManager(
             @RequestBody LoginRequestDTO loginRequestDTO);
 
-    @PostMapping("/api/v1/members/validate")
-    ResponseEntity<CommonResponseDTO<ValidateTokenResponseDTO>> validateMemberById(@RequestBody String id);
+    @PostMapping("/api/v1/managers/validate")
+    ResponseEntity<CommonResponseDTO<ValidateTokenResponseDTO>> validateManagerToken(@RequestBody String id);
 }
