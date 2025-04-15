@@ -14,7 +14,6 @@ import com.jeein.auth.exception.CustomJwtException;
 import com.jeein.auth.exception.ErrorCode;
 import com.jeein.auth.exception.GeneralFeignException;
 import com.jeein.auth.exception.MemberFeignException;
-import com.jeein.auth.feign.ManagerServiceFeignClient;
 import com.jeein.auth.feign.MemberServiceFeignClient;
 import com.jeein.auth.util.JwtManager;
 import feign.FeignException;
@@ -38,14 +37,14 @@ import java.util.Date;
 public class ManagerAuthService {
 
     private final JwtManager jwtManager;
-    private final ManagerServiceFeignClient managerServiceFeignClient;
+    private final MemberServiceFeignClient memberServiceFeignClient;
     private final ObjectMapper objectMapper;
 
     // 회원 가입
     public CommonResponseDTO<JoinResponseDTO> registerManager(
             @RequestBody @Valid JoinRequestDTO joinRequestDTO) {
 
-        ResponseEntity<CommonResponseDTO<JoinResponseDTO>> response = managerServiceFeignClient.joinManager(joinRequestDTO);
+        ResponseEntity<CommonResponseDTO<JoinResponseDTO>> response = memberServiceFeignClient.joinManager(joinRequestDTO);
         if (response.getStatusCode().isError()) {
             throw new MemberFeignException(HttpStatus.valueOf(response.getStatusCode().value()), response.getBody());
         }
@@ -59,7 +58,7 @@ public class ManagerAuthService {
 
         ResponseEntity<CommonResponseDTO<MemberLoginResponseDTO>> memberLoginResponse;
         try {
-             memberLoginResponse = managerServiceFeignClient.loginManager(loginRequestDTO);
+             memberLoginResponse = memberServiceFeignClient.loginManager(loginRequestDTO);
         } catch (FeignException e) {
             int status = e.status();
             String responseBody = e.contentUTF8();
@@ -130,7 +129,7 @@ public class ManagerAuthService {
             throw new CustomJwtException(ErrorCode.EXPIRED_TOKEN);
         }
 
-        ResponseEntity<CommonResponseDTO<ValidateTokenResponseDTO>> response = managerServiceFeignClient.validateManagerToken(claims.getSubject());
+        ResponseEntity<CommonResponseDTO<ValidateTokenResponseDTO>> response = memberServiceFeignClient.validateManagerToken(claims.getSubject());
         if (response.getStatusCode().isError()) {
             throw new MemberFeignException(HttpStatus.valueOf(response.getStatusCode().value()), response.getBody());
         }

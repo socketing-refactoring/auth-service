@@ -24,4 +24,16 @@ public interface MemberServiceFeignClient {
 
     @PostMapping("/api/v1/members/validate")
     ResponseEntity<CommonResponseDTO<ValidateTokenResponseDTO>> validateMemberById(@RequestBody String id);
+
+
+    @PostMapping("/api/v1/managers/join")
+    ResponseEntity<CommonResponseDTO<JoinResponseDTO>> joinManager(@RequestBody JoinRequestDTO joinRequestDTO);
+
+    @PostMapping("/api/v1/managers/login")
+    ResponseEntity<CommonResponseDTO<MemberLoginResponseDTO>> loginManager(
+            @RequestBody LoginRequestDTO loginRequestDTO);
+
+    @PostMapping("/api/v1/managers/validate")
+    ResponseEntity<CommonResponseDTO<ValidateTokenResponseDTO>> validateManagerToken(@RequestBody String id);
+
 }
