@@ -26,19 +26,19 @@ public class AuthController {
 
     @PostMapping("/join")
     public ResponseEntity<CommonResponseDTO<JoinResponseDTO>> join(
-            @RequestBody @Valid JoinRequestDTO joinRequestDTO) {
+                    @RequestBody @Valid JoinRequestDTO joinRequestDTO) {
         return ResponseEntity.ok(authService.registerMember(joinRequestDTO));
     }
 
     @PostMapping("/login")
     public ResponseEntity<CommonResponseDTO<LoginResponseDTO>> login(
-            @RequestBody @Valid LoginRequestDTO loginRequestDTO) {
+                    @RequestBody @Valid LoginRequestDTO loginRequestDTO) {
         return ResponseEntity.ok(authService.loginMember(loginRequestDTO));
     }
 
     @GetMapping("/validate")
     public ResponseEntity<CommonResponseDTO<ValidateTokenResponseDTO>> validateToken(
-            @RequestParam String token) {
+                    @RequestParam String token) {
         return ResponseEntity.ok(authService.validateToken(token));
     }
 }

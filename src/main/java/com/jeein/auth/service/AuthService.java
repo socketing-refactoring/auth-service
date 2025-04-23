@@ -38,11 +38,13 @@ public class AuthService {
 
     // 회원 가입
     public CommonResponseDTO<JoinResponseDTO> registerMember(
-            @RequestBody @Valid JoinRequestDTO joinRequestDTO) {
+                    @RequestBody @Valid JoinRequestDTO joinRequestDTO) {
 
-        ResponseEntity<CommonResponseDTO<JoinResponseDTO>> response = memberServiceFeignClient.createMember(joinRequestDTO);
+        ResponseEntity<CommonResponseDTO<JoinResponseDTO>> response =
+                        memberServiceFeignClient.createMember(joinRequestDTO);
         if (response.getStatusCode().isError()) {
-            throw new MemberFeignException(HttpStatus.valueOf(response.getStatusCode().value()), response.getBody());
+            throw new MemberFeignException(HttpStatus.valueOf(response.getStatusCode().value()),
+                            response.getBody());
         }
 
         return response.getBody();
@@ -50,11 +52,11 @@ public class AuthService {
 
     // 로그인
     public CommonResponseDTO<LoginResponseDTO> loginMember(
-            @RequestBody @Valid LoginRequestDTO loginRequestDTO) {
+                    @RequestBody @Valid LoginRequestDTO loginRequestDTO) {
 
         ResponseEntity<CommonResponseDTO<MemberLoginResponseDTO>> memberLoginResponse;
         try {
-             memberLoginResponse = memberServiceFeignClient.loginMember(loginRequestDTO);
+            memberLoginResponse = memberServiceFeignClient.loginMember(loginRequestDTO);
         } catch (FeignException e) {
             int status = e.status();
             String responseBody = e.contentUTF8();
@@ -68,11 +70,8 @@ public class AuthService {
 
             try {
                 // 예: body 파싱해서 custom exception 생성
-                CommonResponseDTO<MemberLoginResponseDTO> parsedBody = objectMapper.readValue(
-                        responseBody,
-                        new TypeReference<CommonResponseDTO<MemberLoginResponseDTO>>() {
-                        }
-                );
+                CommonResponseDTO<MemberLoginResponseDTO> parsedBody = objectMapper.readValue(responseBody,
+                                new TypeReference<CommonResponseDTO<MemberLoginResponseDTO>>() {});
 
                 throw new MemberFeignException(HttpStatus.valueOf(e.status()), parsedBody);
             } catch (JsonProcessingException je) {
@@ -86,18 +85,11 @@ public class AuthService {
 
         long expireTime = Duration.ofHours(6).toMillis();
         long expiresIn = System.currentTimeMillis() + expireTime;
-        String token =
-                jwtManager.generateToken(
-                        memberLoginResponse.getBody().getData().getId(),
-                        memberLoginResponse.getBody().getData().getEmail(),
-                        new Date(expiresIn));
+        String token = jwtManager.generateToken(memberLoginResponse.getBody().getData().getId(),
+                        memberLoginResponse.getBody().getData().getEmail(), new Date(expiresIn));
 
-        LoginResponseDTO loginResponseDTO =
-                LoginResponseDTO.builder()
-                        .accessToken(token)
-                        .expiresIn(expiresIn)
-                        .tokenType("Bearer")
-                        .build();
+        LoginResponseDTO loginResponseDTO = LoginResponseDTO.builder().accessToken(token).expiresIn(expiresIn)
+                        .tokenType("Bearer").build();
         return CommonResponseDTO.success("로그인이 성공적으로 이루어졌습니다.", "0", loginResponseDTO);
     }
 
@@ -107,12 +99,7 @@ public class AuthService {
 
         Claims claims = null;
         try {
-            claims =
-                    Jwts.parser()
-                            .verifyWith(publicKey)
-                            .build()
-                            .parseSignedClaims(token)
-                            .getPayload();
+            claims = Jwts.parser().verifyWith(publicKey).build().parseSignedClaims(token).getPayload();
 
         } catch (Exception e) {
             log.debug("JWT 인증실패");
@@ -126,9 +113,11 @@ public class AuthService {
             throw new CustomJwtException(ErrorCode.EXPIRED_TOKEN);
         }
 
-        ResponseEntity<CommonResponseDTO<ValidateTokenResponseDTO>> response = memberServiceFeignClient.validateMemberById(claims.getSubject());
+        ResponseEntity<CommonResponseDTO<ValidateTokenResponseDTO>> response =
+                        memberServiceFeignClient.validateMemberById(claims.getSubject());
         if (response.getStatusCode().isError()) {
-            throw new MemberFeignException(HttpStatus.valueOf(response.getStatusCode().value()), response.getBody());
+            throw new MemberFeignException(HttpStatus.valueOf(response.getStatusCode().value()),
+                            response.getBody());
         }
 
         return response.getBody();

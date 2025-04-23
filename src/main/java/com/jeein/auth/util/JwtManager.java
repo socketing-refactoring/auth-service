@@ -38,27 +38,18 @@ public class JwtManager {
         }
     }
 
-    public String generateToken(String id, String email, Date expireTime)
-            throws CustomJwtException {
+    public String generateToken(String id, String email, Date expireTime) throws CustomJwtException {
         log.debug("jwt 생성 중... id: {}", id);
         log.debug("jwt 생성 중... email: {}", email);
 
-        return Jwts.builder()
-                .subject(id)
-                .claim("email", email)
-                .issuedAt(new Date())
-                .expiration(expireTime)
-                .signWith(privateKey)
-                .compact();
+        return Jwts.builder().subject(id).claim("email", email).issuedAt(new Date()).expiration(expireTime)
+                        .signWith(privateKey).compact();
     }
 
     public static PrivateKey getPrivateKeyFromString(String privateKeyPem) throws Exception {
         // PEM 형식에서 Base64 부분만 추출
-        String privateKeyPEM =
-                privateKeyPem
-                        .replace("-----BEGIN PRIVATE KEY-----", "")
-                        .replace("-----END PRIVATE KEY-----", "")
-                        .replaceAll("\\s", ""); // 공백 제거
+        String privateKeyPEM = privateKeyPem.replace("-----BEGIN PRIVATE KEY-----", "")
+                        .replace("-----END PRIVATE KEY-----", "").replaceAll("\\s", ""); // 공백 제거
 
         // Base64 디코딩
         byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyPEM);
@@ -71,11 +62,8 @@ public class JwtManager {
 
     public static PublicKey getPublicKeyFromString(String publicKeyPem) throws Exception {
         // PEM 형식에서 Base64 부분만 추출
-        String publicKeyPEM =
-                publicKeyPem
-                        .replace("-----BEGIN PUBLIC KEY-----", "")
-                        .replace("-----END PUBLIC KEY-----", "")
-                        .replaceAll("\\s", ""); // 공백 제거
+        String publicKeyPEM = publicKeyPem.replace("-----BEGIN PUBLIC KEY-----", "")
+                        .replace("-----END PUBLIC KEY-----", "").replaceAll("\\s", ""); // 공백 제거
 
         // Base64 디코딩
         byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyPEM);

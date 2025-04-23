@@ -20,16 +20,15 @@ import feign.FeignException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.validation.Valid;
+import java.security.PublicKey;
+import java.time.Duration;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import java.security.PublicKey;
-import java.time.Duration;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -42,11 +41,13 @@ public class ManagerAuthService {
 
     // 회원 가입
     public CommonResponseDTO<JoinResponseDTO> registerManager(
-            @RequestBody @Valid JoinRequestDTO joinRequestDTO) {
+                    @RequestBody @Valid JoinRequestDTO joinRequestDTO) {
 
-        ResponseEntity<CommonResponseDTO<JoinResponseDTO>> response = memberServiceFeignClient.joinManager(joinRequestDTO);
+        ResponseEntity<CommonResponseDTO<JoinResponseDTO>> response =
+                        memberServiceFeignClient.joinManager(joinRequestDTO);
         if (response.getStatusCode().isError()) {
-            throw new MemberFeignException(HttpStatus.valueOf(response.getStatusCode().value()), response.getBody());
+            throw new MemberFeignException(HttpStatus.valueOf(response.getStatusCode().value()),
+                            response.getBody());
         }
 
         return response.getBody();
@@ -54,11 +55,11 @@ public class ManagerAuthService {
 
     // 로그인
     public CommonResponseDTO<LoginResponseDTO> loginManager(
-            @RequestBody @Valid LoginRequestDTO loginRequestDTO) {
+                    @RequestBody @Valid LoginRequestDTO loginRequestDTO) {
 
         ResponseEntity<CommonResponseDTO<MemberLoginResponseDTO>> memberLoginResponse;
         try {
-             memberLoginResponse = memberServiceFeignClient.loginManager(loginRequestDTO);
+            memberLoginResponse = memberServiceFeignClient.loginManager(loginRequestDTO);
         } catch (FeignException e) {
             int status = e.status();
             String responseBody = e.contentUTF8();
@@ -71,11 +72,8 @@ public class ManagerAuthService {
 
             try {
                 // 예: body 파싱해서 custom exception 생성
-                CommonResponseDTO<MemberLoginResponseDTO> parsedBody = objectMapper.readValue(
-                        responseBody,
-                        new TypeReference<CommonResponseDTO<MemberLoginResponseDTO>>() {
-                        }
-                );
+                CommonResponseDTO<MemberLoginResponseDTO> parsedBody = objectMapper.readValue(responseBody,
+                                new TypeReference<CommonResponseDTO<MemberLoginResponseDTO>>() {});
 
                 throw new MemberFeignException(HttpStatus.valueOf(e.status()), parsedBody);
             } catch (JsonProcessingException je) {
@@ -89,18 +87,11 @@ public class ManagerAuthService {
 
         long expireTime = Duration.ofHours(6).toMillis();
         long expiresIn = System.currentTimeMillis() + expireTime;
-        String token =
-                jwtManager.generateToken(
-                        memberLoginResponse.getBody().getData().getId(),
-                        memberLoginResponse.getBody().getData().getEmail(),
-                        new Date(expiresIn));
+        String token = jwtManager.generateToken(memberLoginResponse.getBody().getData().getId(),
+                        memberLoginResponse.getBody().getData().getEmail(), new Date(expiresIn));
 
-        LoginResponseDTO loginResponseDTO =
-                LoginResponseDTO.builder()
-                        .accessToken(token)
-                        .expiresIn(expiresIn)
-                        .tokenType("Bearer")
-                        .build();
+        LoginResponseDTO loginResponseDTO = LoginResponseDTO.builder().accessToken(token).expiresIn(expiresIn)
+                        .tokenType("Bearer").build();
         return CommonResponseDTO.success("로그인이 성공적으로 이루어졌습니다.", "0", loginResponseDTO);
     }
 
@@ -110,12 +101,7 @@ public class ManagerAuthService {
 
         Claims claims = null;
         try {
-            claims =
-                    Jwts.parser()
-                            .verifyWith(publicKey)
-                            .build()
-                            .parseSignedClaims(token)
-                            .getPayload();
+            claims = Jwts.parser().verifyWith(publicKey).build().parseSignedClaims(token).getPayload();
 
         } catch (Exception e) {
             log.debug("JWT 인증실패");
@@ -129,9 +115,11 @@ public class ManagerAuthService {
             throw new CustomJwtException(ErrorCode.EXPIRED_TOKEN);
         }
 
-        ResponseEntity<CommonResponseDTO<ValidateTokenResponseDTO>> response = memberServiceFeignClient.validateManagerToken(claims.getSubject());
+        ResponseEntity<CommonResponseDTO<ValidateTokenResponseDTO>> response =
+                        memberServiceFeignClient.validateManagerToken(claims.getSubject());
         if (response.getStatusCode().isError()) {
-            throw new MemberFeignException(HttpStatus.valueOf(response.getStatusCode().value()), response.getBody());
+            throw new MemberFeignException(HttpStatus.valueOf(response.getStatusCode().value()),
+                            response.getBody());
         }
 
         return response.getBody();

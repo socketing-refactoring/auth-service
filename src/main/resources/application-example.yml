@@ -1,18 +1,15 @@
 spring:
   application:
-    name: auth-service
+    name: "auth-service"
   profiles:
-    active: dev
+    active: "dev"
   config:
-    import: optional:configserver:http://localhost:9000
+    import: "optional:configserver:http://localhost:9000"
   cloud:
     config:
-      name: auth-service
-      profile: dev
-
+      name: "auth-service"
+      profile: "dev"
 token:
   jwt:
-    private: |
-      {jwt-private-key}
-    public: |
-      {jwt-public-key}
+    private: "{jwt-private-key}\n"
+    public: "{jwt-public-key}\n"

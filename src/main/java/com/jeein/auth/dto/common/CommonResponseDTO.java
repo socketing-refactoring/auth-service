@@ -2,6 +2,7 @@ package com.jeein.auth.dto.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jeein.auth.exception.ErrorCode;
+import jakarta.servlet.http.Cookie;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -56,8 +57,7 @@ public class CommonResponseDTO<T> {
     }
 
     // 실패 응답을 위한 팩토리 메소드 (ErrorCode와 BindingResult를 이용한 처리)
-    public static CommonResponseDTO<Object> error(
-            ErrorCode errorCode, BindingResult bindingResult) {
+    public static CommonResponseDTO<Object> error(ErrorCode errorCode, BindingResult bindingResult) {
         List<FieldError> fieldErrors = FieldError.of(bindingResult);
         return new CommonResponseDTO<>(errorCode.getMessage(), errorCode.getCode(), fieldErrors);
     }
@@ -66,11 +66,11 @@ public class CommonResponseDTO<T> {
     public static CommonResponseDTO<Object> error(MethodArgumentTypeMismatchException e) {
         String value = Optional.ofNullable(e.getValue()).map(Object::toString).orElse("");
         List<FieldError> errors = FieldError.of(e.getName(), value, e.getErrorCode());
-        return new CommonResponseDTO<>(
-                ErrorCode.INVALID_TYPE_VALUE.getMessage(),
-                ErrorCode.INVALID_TYPE_VALUE.getCode(),
-                errors);
+        return new CommonResponseDTO<>(ErrorCode.INVALID_TYPE_VALUE.getMessage(),
+                        ErrorCode.INVALID_TYPE_VALUE.getCode(), errors);
     }
+
+    public void addCookie(Cookie cookie) {}
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -92,18 +92,13 @@ public class CommonResponseDTO<T> {
         }
 
         private static List<FieldError> of(BindingResult bindingResult) {
-            List<org.springframework.validation.FieldError> fieldErrors =
-                    bindingResult.getFieldErrors();
+            List<org.springframework.validation.FieldError> fieldErrors = bindingResult.getFieldErrors();
             return fieldErrors.stream()
-                    .map(
-                            error ->
-                                    new FieldError(
-                                            error.getField(),
-                                            error.getRejectedValue() == null
-                                                    ? ""
-                                                    : error.getRejectedValue().toString(),
+                            .map(error -> new FieldError(error.getField(),
+                                            error.getRejectedValue() == null ? ""
+                                                            : error.getRejectedValue().toString(),
                                             error.getDefaultMessage()))
-                    .collect(Collectors.toList());
+                            .collect(Collectors.toList());
         }
     }
 }

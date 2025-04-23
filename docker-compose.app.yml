@@ -1,7 +1,7 @@
 services:
   auth:
-    image: ${DOCKER_USERNAME}/socketing:auth-service
-    network_mode: host
-    container_name: auth-service-app
+    image: "${DOCKER_USERNAME}/socketing:auth-service"
+    network_mode: "host"
+    container_name: "auth-service-app"
     volumes:
-      - ./logs:/app/logs
+      - "./logs:/app/logs"

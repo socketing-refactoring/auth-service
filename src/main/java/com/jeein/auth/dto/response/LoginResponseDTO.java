@@ -10,8 +10,8 @@ public class LoginResponseDTO {
     private String accessToken;
     private String tokenType;
 
-    //    private String id;
-    //    private String nickname;
-    //    private String email;
-    //    private String token;
+    // private String id;
+    // private String nickname;
+    // private String email;
+    // private String token;
 }
