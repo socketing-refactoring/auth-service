@@ -55,6 +55,19 @@ public class ManagerAuthController {
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<CommonResponseDTO<Void>> managerLogout() {
+
+        CommonResponseDTO<Void> response = CommonResponseDTO.success("Manager Logout successful", "0", null);
+
+        ResponseCookie expiredCookie = ResponseCookie.from("managerToken", "").httpOnly(true).path("/")
+                        .domain(".jeein.xyz").maxAge(0).sameSite("None").secure(true).build();
+
+        log.debug(expiredCookie.getName(), expiredCookie.getValue());
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, expiredCookie.toString()).body(response);
+    }
+
     // 관리자 토큰 검증
     @GetMapping("/validate")
     public ResponseEntity<CommonResponseDTO<ValidateTokenResponseDTO>> validateManagerToken(
