@@ -38,12 +38,13 @@ public class JwtManager {
         }
     }
 
-    public String generateToken(String id, String email, Date expireTime) throws CustomJwtException {
+    public String generateToken(String id, String email, String role, Date expireTime)
+                    throws CustomJwtException {
         log.debug("jwt 생성 중... id: {}", id);
         log.debug("jwt 생성 중... email: {}", email);
 
-        return Jwts.builder().subject(id).claim("email", email).issuedAt(new Date()).expiration(expireTime)
-                        .signWith(privateKey).compact();
+        return Jwts.builder().subject(id).claim("email", email).claim("role", role).issuedAt(new Date())
+                        .expiration(expireTime).signWith(privateKey).compact();
     }
 
     public static PrivateKey getPrivateKeyFromString(String privateKeyPem) throws Exception {

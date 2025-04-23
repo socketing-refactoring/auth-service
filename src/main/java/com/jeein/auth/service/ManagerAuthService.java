@@ -71,7 +71,6 @@ public class ManagerAuthService {
             }
 
             try {
-                // 예: body 파싱해서 custom exception 생성
                 CommonResponseDTO<MemberLoginResponseDTO> parsedBody = objectMapper.readValue(responseBody,
                                 new TypeReference<CommonResponseDTO<MemberLoginResponseDTO>>() {});
 
@@ -88,7 +87,7 @@ public class ManagerAuthService {
         long expireTime = Duration.ofHours(6).toMillis();
         long expiresIn = System.currentTimeMillis() + expireTime;
         String token = jwtManager.generateToken(memberLoginResponse.getBody().getData().getId(),
-                        memberLoginResponse.getBody().getData().getEmail(), new Date(expiresIn));
+                        memberLoginResponse.getBody().getData().getEmail(), "manager", new Date(expiresIn));
 
         LoginResponseDTO loginResponseDTO = LoginResponseDTO.builder().accessToken(token).expiresIn(expiresIn)
                         .tokenType("Bearer").build();

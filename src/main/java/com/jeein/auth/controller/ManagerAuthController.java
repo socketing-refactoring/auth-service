@@ -46,8 +46,9 @@ public class ManagerAuthController {
 
         String token = response.getData().getAccessToken();
 
-        ResponseCookie cookie = ResponseCookie.from("managerToken", token).httpOnly(true).secure(false)
-                        .path("/").maxAge(Duration.ofHours(6)).build();
+        ResponseCookie cookie = ResponseCookie.from("managerToken", token).httpOnly(true).path("/")
+                        .domain(".jeein.xyz").maxAge(Duration.ofHours(6)).sameSite("None").secure(true)
+                        .build();
 
         log.debug(cookie.getName(), cookie.getValue());
 

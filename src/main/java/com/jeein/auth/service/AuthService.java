@@ -86,7 +86,7 @@ public class AuthService {
         long expireTime = Duration.ofHours(6).toMillis();
         long expiresIn = System.currentTimeMillis() + expireTime;
         String token = jwtManager.generateToken(memberLoginResponse.getBody().getData().getId(),
-                        memberLoginResponse.getBody().getData().getEmail(), new Date(expiresIn));
+                        memberLoginResponse.getBody().getData().getEmail(), "user", new Date(expiresIn));
 
         LoginResponseDTO loginResponseDTO = LoginResponseDTO.builder().accessToken(token).expiresIn(expiresIn)
                         .tokenType("Bearer").build();
